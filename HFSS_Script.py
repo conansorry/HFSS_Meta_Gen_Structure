@@ -88,8 +88,21 @@ class HFSS:
     def rotation(self, _obj1, theta):
         self.oEditor.Roate(["NAME:Selections", "Selections:=", _obj1],
                            ["NAME:RotateParameters",
-                            "RotateAxis:=", "Z"  
+                            "RotateAxis:=", "Z"  ,
                             "RotateAngle:=", theta] )
+
+
+    def move(self, _obj1, dx, dy, dz):
+
+        self.oEditor.Roate(["NAME:Selections", "Selections:=", _obj1],
+                           ["NAME:TranslateParameters",
+                            "TranslateVectorX:=", dx,
+                            "TranslateVectorY:=", dy,
+                            "TranslateVectorZ:=", dz]
+        )
+
+
+
     def duplicate_mirror(self, _obj, plane ):
         if plane == 'xy':
             _x = 0

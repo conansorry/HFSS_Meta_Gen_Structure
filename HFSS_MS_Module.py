@@ -65,6 +65,7 @@ def gen_C_Cir_Arm(H = HFSS_Script.HFSS, l1 = float, l2= float, w = float, theta=
     H.unite("L1_o", "arm")
     if (theta != 0):   H.rotation("L1_o", theta)
 
+
 def gen_D_Cir_No_Cross(H=HFSS_Script.HFSS, l1=float, l2=float, w=float, theta=float, t=0.2):
 
     H.create_cylinder('0.0mm', '0.0mm', '0.0mm',
