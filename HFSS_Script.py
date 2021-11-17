@@ -454,8 +454,7 @@ class HFSS:
         )
 
 
-    def create_box_Ellips(self, _x:float, _y:float, _z:float,
-                         l1:float, l2:float, _dz:float,
+    def create_Ellips(self, l1:float, l2:float, _dz:float,
                          _name:str, _mat='vacuum', which_Ax = "Z"):
 
         _Solve_Inside = False
@@ -467,9 +466,9 @@ class HFSS:
         self.oEditor.CreateEllipse(
             [
                 "NAME:CylinderParameters",
-                "XCenter:="     , _x,
-                "YCenter:="	    , _y,
-                "ZCenter:="	    , _z,
+                "XCenter:="     , "0.0mm",
+                "YCenter:="	    , "0.0mm",
+                "ZCenter:="	    , "0.0mm",
                 "MajRadius:="	, l1,
                 "Ratio:="       , l1/l2,
                 "WhichAxis:="   , which_Ax
