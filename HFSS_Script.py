@@ -26,46 +26,6 @@ class HFSS:
         pj_name = str_name(_project_name)
         self.oDesktop.DeleteProject(pj_name)
 
-    def gen_A_cross(self, l1, l2, w, t, theta):
-
-
-        self.create_box(str(-l1 / 2.0) + 'mm', str(-w/2.0) + 'mm', '0mm',
-                        str(l1) + "mm", str(w) + "mm", str(t) + 'mm',
-                        "L1", 'pec')
-        self.create_box(str(-w / 2.0) + 'mm', str(-l2 / 2.0) + 'mm', '0mm',
-                        str(w) + "mm", str(l2) + "mm", str(t) + 'mm',
-                        "L2", 'pec')
-
-        self.unite("L1", "L2")
-
-    def gen_B_Cir_with_Cap(self, l1, l2, w, t, theta):
-
-        self.create_box(str(-l1 / 2.0) + 'mm', str(-l1 / 2.0) + 'mm', '0mm',
-                        str(l1) + "mm", str(l1) + "mm", str(t) + 'mm',
-                        "L1_o", 'pec')
-
-        self.create_box(str(-l1 / 2.0+0.5*w) + 'mm', str(-l1 / 2.0+0.5*w) + 'mm', '0mm',
-                        str(l1-w) + "mm", str(l1-w) + "mm", str(t) + 'mm',
-                        "L1_i", 'pec')
-
-        self.subtract("L1_o", "L1_i")
-
-        self.create_box(str(-l1 / 2.0) + 'mm', str(-0.5*w) + 'mm', '0mm',
-                        str(l1 / 2.0-0.5*l2) + "mm", str(w) + "mm", str(t) + 'mm',
-                        "L2_x", 'pec')
-
-        self.create_box(str(-l1 / 2.0-w) + 'mm', str(-0.75) + 'mm', '0mm',
-                        str(w) + "mm", str(1.5) + "mm", str(t) + 'mm',
-                        "L2_y", 'pec')
-
-        self.unite("L2_x", "L2_y")
-
-        self.duplicate_mirror("L2_x", 'yz')
-
-        self.unite("L1_o", "L2_x")
-        self.unite("L1_o", "L2_x_1")
-
-
 
     def set_variable(self, _var_name, _var_value, _unit=""):
         _NAME = 'NAME:' + _var_name
@@ -124,6 +84,12 @@ class HFSS:
     def unite(self, _obj1, _obj2):
         self.oEditor.Unite(["NAME:Selections", "Selections:=", _obj1 + ',' + _obj2],
                            ["NAME:UniteParameters", "KeepOriginals:=", False])
+
+    def rotation(self, _obj1, theta):
+        self.oEditor.Roate(["NAME:Selections", "Selections:=", _obj1],
+                           ["NAME:RotateParameters",
+                            "RotateAxis:=", "Z"  
+                            "RotateAngle:=", theta] )
     def duplicate_mirror(self, _obj, plane ):
         if plane == 'xy':
             _x = 0
@@ -439,6 +405,91 @@ class HFSS:
                 "IsMaterialEditable:="	, True
             ]
         )
+
+    def create_cylinder(self, _x, _y, _z, _R, _h, _name, which_Ax = "Z", _mat='vacuum'):
+        _Solve_Inside = False
+        _Trans = 0.1
+        if _mat == 'vacuum':
+            _Solve_Inside = True
+            _Trans = 0.99
+
+
+        self.oEditor.CreateCylinder(
+            [
+                "NAME:CylinderParameters",
+                "XCenter:=" 	, _x,
+                "YCenter:="	    , _y,
+                "ZCenter:="	    , _z,
+                "Radius:="		, _R,
+                "Height:="		, _h,
+                "WhichAxis:="   , which_Ax
+            ],
+            [
+                "NAME:Attributes",
+                "Name:="		, _name,
+                "Flags:="		, "",
+                "Color:="		, "(143 175 143)",
+                "Transparency:="	, _Trans,
+                "PartCoordinateSystem:=", "Global",
+                "UDMId:="		, "",
+                "MaterialValue:="	, "\""+_mat+"\"",
+                "SurfaceMaterialValue:=", "\"\"",
+
+                "SolveInside:="		, _Solve_Inside,
+                "IsMaterialEditable:="	, True
+            ]
+        )
+
+
+    def create_box_Ellips(self, _x:float, _y:float, _z:float,
+                         l1:float, l2:float, _dz:float,
+                         _name:str, _mat='vacuum', which_Ax = "Z"):
+
+        _Solve_Inside = False
+        _Trans = 0.1
+        if _mat == 'vacuum':
+            _Solve_Inside = True
+        _Trans = 0.99
+
+        self.oEditor.CreateEllipse(
+            [
+                "NAME:CylinderParameters",
+                "XCenter:="     , _x,
+                "YCenter:="	    , _y,
+                "ZCenter:="	    , _z,
+                "MajRadius:="	, l1,
+                "Ratio:="       , l1/l2,
+                "WhichAxis:="   , which_Ax
+            ],
+            [
+                "NAME:Attributes",
+                "Name:=", _name,
+                "Flags:="	, "",
+                    "Color:="		, "(143 175 143)",
+                    "Transparency:="	, 0,
+                    "PartCoordinateSystem:=", "Global",
+                    "UDMId:="		, "",
+                    "MaterialValue:="	, "\"" +_mat + "\"",
+                "SurfaceMaterialValue:=", "\"\"",
+                "SolveInside:="	, _Solve_Inside,
+                    "IsMaterialEditable:="	, True
+                ])
+        self.oEditor.SweepAlongVector(
+            [
+                "NAME:Selections",
+                "Selections:="	, _name,
+                "NewPartsModelFlag:="	, "Model"
+            ],
+            [
+                "NAME:VectorSweepParameters",
+                "DraftAngle:="		, "0deg",
+                "DraftType:="		, "Round",
+                "CheckFaceFaceIntersection:=", False,
+                "SweepVectorX:="	, "0mm",
+                "SweepVectorY:="	, "0mm",
+                "SweepVectorZ:="	, str(_dz)+"mm"
+            ])
+
 
     def create_box_trian(self, _x:float, _y:float, _z:float,
                          _dx:float, _dy:float, _dz:float, draw_type:int,
