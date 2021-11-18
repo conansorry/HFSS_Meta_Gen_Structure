@@ -86,11 +86,14 @@ class HFSS:
                            ["NAME:UniteParameters", "KeepOriginals:=", False])
 
     def rotation(self, _obj1, theta):
-        self.oEditor.Roate(["NAME:Selections", "Selections:=", _obj1],
-                           ["NAME:RotateParameters",
-                            "RotateAxis:=", "Z"  ,
-                            "RotateAngle:=", theta] )
-
+        self.oEditor.Rotate(["NAME:Selections",
+                            "Selections:=", _obj1,
+                            "NewPartsModelFlag:="	, "Model"
+                            ],
+                           ["NAME:RotateParameters" ,
+                            "RotateAxis:="          , "Z"  ,
+                            "RotateAngle:="         , str(theta) +"deg"] )
+        #
 
     def move(self, _obj1, dx, dy, dz):
 
@@ -101,7 +104,17 @@ class HFSS:
                             "TranslateVectorZ:=", dz]
         )
 
-
+    # oEditor.Rotate(
+    #     [
+    #         "NAME:Selections",
+    #         "Selections:="	, "L1",
+    #         "NewPartsModelFlag:="	, "Model"
+    #     ],
+    #     [
+    #         "NAME:RotateParameters",
+    #         "RotateAxis:="		, "Z",
+    #         "RotateAngle:="		, "24deg"
+    #     ])
 
     def duplicate_mirror(self, _obj, plane ):
         if plane == 'xy':
