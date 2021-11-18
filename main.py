@@ -19,8 +19,10 @@ def auto_gen_structure(_st):
     dim_a = 10
     w = 0.5
     thickness = 0.01
-    l1_list = np.arange(3.0, 7.5, 0.5)
-    l2_list = np.arange(3.0, 7.5, 0.5)
+    l11_list = np.arange(3.0, 7.5, 0.5)
+    l21_list = np.arange(3.0, 7.5, 0.5)
+    l12_list = np.arange(3.0, 7.5, 0.5)
+    l22_list = np.arange(0.5,1.0,0.5)
     theta_list = [30, 45, 60, 90]
 
     count = _st
@@ -42,12 +44,21 @@ def auto_gen_structure(_st):
 
 
 
-    for l1 in l1_list:
-        for l2 in l2_list:
+    for l1 in l11_list:
+        for l2 in l21_list:
             for theta in theta_list:
                 design_name = "design" + str(count)
                 h.new_design(design_name)
-                HS.gen_A_cross(h, l1, l2, w, theta, thickness )
+                # HS.gen_B_Square_with_Cap(h, l1, l2, w, theta, thickness )
+                # HS.gen_C_Cir_Arm(h, l1, l2, w, theta, thickness )
+                # HS.gen_D_Cir_No_Cross(h, l1, l2, w, theta, thickness )
+                # HS.gen_F_H_Shape(h, l1, l2, w, theta, thickness )
+                # HS.gen_G_H_Shape(h, l1, l2, w, theta, thickness )
+                # HS.gen_H_Half_H(h, l1, l2, w, theta, thickness )
+                # HS.gen_I_Two_Arm(h, l1, l2, w, theta, thickness )
+                # HS.gen_J_Ellips(h, l1, l2, w, theta, thickness )
+                # HS.gen_K_Squre(h, l1, l2, w, theta, thickness )
+                HS.gen_L_Empty_Squre(h, l1, l2, w, theta, thickness )
 
                 h.create_box(str(-dim_a / 2.0) + "mm", str(-dim_a / 2.0) + "mm", str(-300.0 / fs) + "mm",
                              str(dim_a) + "mm", str(dim_a) + "mm", str(2 * 300.0 / fs) + "mm", 'Boundary')
@@ -59,13 +70,12 @@ def auto_gen_structure(_st):
 
                 h.insert_analysis_setup_old(solution_name, f_sol, 0.02, 8)
                 h.insert_frequency_swap(solution_name, fs, fe, nfp)
-                h.run(solution_name)
+                # h.run(solution_name)
+                # h.create_reports_tr_ri(solution_name, design_name)
 
-        # h.create_reports_tr(solution_name, "db")
-        # h.create_reports_tr(solution_name, "phase")
-                h.create_reports_tr_ri(solution_name, design_name)
-                X.append([count, l1, l2, w, theta, thickness])
-                h.delete_design(design_name)
+                # h.delete_design(design_name)
+                X.append([count, 1.0, l1, l2, w, theta, thickness])
+                count = count + 1
     np.savetxt(my_path + "/Property.txt", X)
 
 def auto_generator(_st):
@@ -177,8 +187,8 @@ def auto_restart(count):
 if __name__ == '__main__':
     close_ANSYS()
     count = 0
-    auto_restart(count)
-    # auto_gen_structure(count)
+    # auto_restart(count)
+    auto_gen_structure(count)
 
     # start_ind = [500, 1000]
     # jobs = []

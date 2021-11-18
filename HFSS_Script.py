@@ -97,7 +97,7 @@ class HFSS:
 
     def move(self, _obj1, dx, dy, dz):
 
-        self.oEditor.Roate(["NAME:Selections", "Selections:=", _obj1],
+        self.oEditor.Move(["NAME:Selections", "Selections:=", _obj1],
                            ["NAME:TranslateParameters",
                             "TranslateVectorX:=", dx,
                             "TranslateVectorY:=", dy,
@@ -483,7 +483,7 @@ class HFSS:
                 "YCenter:="	    , "0.0mm",
                 "ZCenter:="	    , "0.0mm",
                 "MajRadius:="	, l1,
-                "Ratio:="       , l1/l2,
+                "Ratio:="       , l2,
                 "WhichAxis:="   , which_Ax
             ],
             [
