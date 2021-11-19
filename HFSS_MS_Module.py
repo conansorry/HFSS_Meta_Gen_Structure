@@ -168,7 +168,7 @@ def gen_H_Half_H(H=HFSS_Script.HFSS, l1=float, l2=float, w=float, theta=float, t
 
     H.unite("L", "L1_1")
     H.unite("L", "L1_2")
-    H.unite("L", "L1_3  ")
+    H.unite("L", "L1_3")
     H.duplicate_mirror("L", 'xz')
     H.unite("L", "L_1")
     if (theta != 0):   H.rotation("L", theta)
