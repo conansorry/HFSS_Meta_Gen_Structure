@@ -378,7 +378,7 @@ class HFSS:
 
         # my_path = os.path.abspath("./Res")
         # os.path.join(os.path.abspath("../Res"), _file_name + ".txt")
-        my_path = my_path + _file_name + ".txt"
+        my_path = my_path + "/"+_file_name + ".txt"
         # print(my_path)
         mod.ExportToFile("RI_TR", my_path)
 
@@ -401,7 +401,7 @@ class HFSS:
     def create_box(self, _x, _y, _z, _dx, _dy, _dz, _name, _mat='vacuum' ):
         _Solve_Inside = False
         _Trans = 0.1
-        if _mat == 'vacuum':
+        if _mat != 'pec':
             _Solve_Inside = True
             _Trans = 0.99
 
@@ -883,7 +883,7 @@ class HFSS:
                 "NumModes:="		, 2,
                 "RenormalizeAllTerminals:=", True,
                 "DoDeembed:="		, True,
-		        "DeembedDist:="		, str(abs(_bounding_xyz[2]))+"mm",
+		        "DeembedDist:="		, str(abs(_bounding_xyz[2])-1)+"mm",
                 [
                     "NAME:Modes",
                     [
@@ -978,7 +978,7 @@ class HFSS:
                 "NumModes:="		, 2,
                 "RenormalizeAllTerminals:=", True,
                 "DoDeembed:="		, True,
-		        "DeembedDist:="		, str(abs(_bounding_xyz[5]))+"mm",
+		        "DeembedDist:="		, str(abs(_bounding_xyz[5])-1)+"mm",
                 [
                     "NAME:Modes",
                     [

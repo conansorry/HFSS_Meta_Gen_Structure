@@ -6,8 +6,9 @@ import shutil
 import sys
 import numpy as np
 import HFSS_MS_Module as HS
+from numpy.random import randint
 
-my_path = "D:\Jiangy\GAN_Training_Data\Patterned"
+my_path = "D:\Jiangy\GAN_Training_Data\Patterned_Double"
 # if __name__ == '__main__':
 #
 
@@ -136,12 +137,13 @@ def gen_space( ):
 
 
 
-def evalue_Pattern(x, h , shift_z = 0):
+def evalue_Pattern(x, h, shift_z = 0.0, _pre = ""):
     l1 = x[2]
     l2 = x[3]
     w = x[4]
     theta = x[5]
     thickness = x[6]
+
     func_dict = {1: HS.gen_A_cross,
                  2: HS.gen_B_Square_with_Cap,
                  3: HS.gen_C_Cir_Arm,
@@ -158,23 +160,28 @@ def evalue_Pattern(x, h , shift_z = 0):
     def func_None():
         print( "cannot find func")
 
-    return func_dict.get(x[1], func_None)(h, l1, l2, w, theta, thickness, shift_z )
+    return func_dict.get(x[1], func_None)(h, l1, l2, w, theta, thickness, shift_z , _pre)
 
 
 
-def auto_gen_structure(_st):
+def auto_gen_structure_double(_st ):
     fs = 5.0
     fe = 25.0
     f_sol = 20.0
     nfp = 101
     dim_a = 10
 
+    thick = 1.0
 
     if os.path.isfile(my_path + "/Property.txt"):
         X = np.loadtxt(my_path + "/Property.txt")
     else:
         X = gen_space()
     # X = gen_space()
+    if os.path.isfile(my_path + "/Layer_Compo.txt"):
+        buf = np.loadtxt(my_path + "/Layer_Compo.txt")
+    else:
+        buf = []
 
     count = _st
 
@@ -186,16 +193,28 @@ def auto_gen_structure(_st):
 
 
 
-    while(count<X.shape[0]):
+    while(1):
         if (os.path.isfile(my_path + "/Res/design" + str(count) + ".txt")):
             # print("exist:",  count)
             a=1
         else:
-            print("evluating:" , count)
+            ind = randint(0, X.shape[0], 2)
+            temp = [count, ind[0], ind[1], thick]
+            temp = np.reshape(temp, (1,4))
+            if(buf.size ==0 ): buf = temp
+            else:
+                buf=np.append(buf, temp, axis=0)
+            # print(buf)
+            print("evluating:" , count, "case:", ind[0], ind[1])
             design_name = "design" + str(count)
             h.new_design(design_name)
 
-            evalue_Pattern( X[count, :], h)
+            evalue_Pattern( X[ind[0], :], h, 0.0, "a")
+            evalue_Pattern(X[ind[1], :], h, thick, "b")
+
+            h.create_box(str(-dim_a / 2.0) + "mm", str(-dim_a / 2.0) + "mm", str(X[ind[0], 6]) + "mm",
+                         str(dim_a) + "mm", str(dim_a) + "mm", str(thick) + "mm", 'Substrate', _mat ='FR4_epoxy' )
+
             h.create_box(str(-dim_a / 2.0) + "mm", str(-dim_a / 2.0) + "mm", str(-30.0 ) + "mm",
                          str(dim_a) + "mm", str(dim_a) + "mm", str(2 * 30.0) + "mm", 'Boundary')
 
@@ -210,10 +229,14 @@ def auto_gen_structure(_st):
             h.create_reports_tr_ri(solution_name, my_path +"/Res" , design_name)
             h.delete_design(design_name)
 
+            np.savetxt(my_path + "/Layer_Compo.txt", buf)
+
         count = count + 1
 
 
     np.savetxt(my_path + "/Property.txt", X)
+    # np.savetxt(my_path + "/Layer_Compo.txt", buf)
+
 
 def close_ANSYS():
     try:
@@ -241,14 +264,16 @@ def delete_path( rootdir ):
 
 
 
-def auto_restart(count):
+def auto_restart(count ):
 
     ct = 0
+    buf = []
     while ct < 10:
         try:
             ct = ct + 1
             # auto_generator(count)
-            auto_gen_structure(count)
+            auto_gen_structure_double(count )
+
         except RuntimeError as err:
             print(ct,"RuntimeError error: {0}".format(err))
         except OSError as err:
@@ -257,18 +282,21 @@ def auto_restart(count):
             print(ct,"Unexpected error:", sys.exc_info()[0])
         finally:
             print( 'finished')
-
+    return buf
 
 if __name__ == '__main__':
     close_ANSYS()
     # x =gen_space()
+    if (os.path.isdir(my_path) == False): os.makedirs(my_path )
     count = 0
     # auto_restart(count)
     # auto_gen_structure(count)
 
-    start_ind = [1600, 1601]
+
     jobs = []
-    auto_restart(0)
+    auto_restart(count)
+
+    # auto_gen_structure_double(count)
     # for i in range(2):
     #     # t =
     #     p = multiprocessing.Process(target=auto_restart, args=(start_ind[i],))
